@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>HCG-TASK</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" >
+        <style>
+            #submitBtn{
+                margin-top:20px; 
+            }
+            #formSec{
+                margin-top:100px; 
+                margin-bottom:100px; 
+            }
+            .resultBox{
+                border:1px solid #ccc;
+                padding:15px; 
+                min-height:150px;
+                margin-top:15px;
+            }
+        </style>
+    </head>
+    <body>
+        <section id="formSec">
+            <div class="container">
+                <form>
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label >Text to style</label>
+                                <input type="text" required  name="textToStyle"  class="form-control" placeholder="Enter Text">                    
+                              </div>                
+                        </div>
+                        <div class="col-3">
+                            <div class="form-group">
+                                <label>Start index</label>
+                                <input type="number" required  name="startIndex" class="form-control" placeholder="Enter Text">                    
+                              </div>                
+                        </div>
+                        <div class="col-3">
+                            <div class="form-group">
+                                <label>End Index</label>
+                                <input type="number" required name="endIndex" class="form-control" placeholder="Enter Text">                    
+                            </div>                
+                        </div>
+                    </div>
+                    <div class="form-group mt-5">
+                        <h3>Result : </h3>
+                        <div class="resultBox"><p></p></div>                 
+                    </div> 
+                  
+                    
+                    <div class="errorBox"></div>
+                    <button type="button" id="submitBtn" class="btn btn-primary">Submit</button>
+                  </form>
+            </div>
+        </section>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+          
+            $(document).ready(function(){
+                var outputElememt = $(".resultBox p");    
+                       
+                $("#submitBtn").click(function(){
+                    outputElememt.empty();   
+                    $('.errorBox').empty(); 
+                    var textToStyle = $("input[name='textToStyle']").val(), 
+                        startIndex = $("input[name='startIndex']").val(), 
+                        endIndex = Number($("input[name='endIndex']").val())+1,
+                        csrfmiddlewaretoken =  $("input[name='csrfmiddlewaretoken']").val(); 
+                    var data= {
+                        textToStyle, startIndex, endIndex,csrfmiddlewaretoken
+                    }; 
+
+                    var url = "{% url 'validate_data' %}/wserdf/wesdf"; 
+                        $.ajax({
+                            url,
+                            data,
+                            method:"POST", 
+                            success:(data)=>{                                
+                                if(data.status){
+                                    updateResult(textToStyle, startIndex, endIndex); 
+                                }
+                                else{
+                                    onValidationFailed(data.errors)
+                                }
+                            }, 
+                            error:()=>{
+                              var err= "<p style='color:red; margin-top:10px'>Oops! something went wrong.</p>"; 
+                              $('.errorBox').append(err); 
+                            } 
+                        })                    
+                })
+                
+                const onValidationFailed  = (errors)=>{
+                    $.each(errors, function(i,e){
+                        var errItem = "<p style='color:red; margin-top:10px'>" + e + "</p>"; 
+                        $('.errorBox').append(errItem); 
+                    })
+                }
+
+                
+
+                const updateResult = (textToStyle, startIndex, endIndex)=>{                  
+                    var midText = textToStyle.substring(startIndex, endIndex),
+                        newMidText =  "<span style='color:red'>"+midText+"</span>";  
+                        updatedFinalText = textToStyle.replace(midText, newMidText)     
+
+                    outputElememt.html(updatedFinalText)
+                }
+            })
+        </script>
+    </body>
+</html>
