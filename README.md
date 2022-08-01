@@ -10,4 +10,4 @@ Then install the project dependencies
 `pip install -r requirements.txt`
 
 Run project using command
-`python manage.py runserver
+`python manage.py runserver`
